@@ -45,21 +45,20 @@ def _g(x, mu, s1, s2):
 # This is a compromize between accuracy and esthetics.
 def _lam2rgb_good(lam, intensity):
     # Manually fitted RGB components
-    rbar = 0.35 * _g(lam, 605, 33, 60) \
-         + 0.05 * _g(lam, 430, 18, 22)
+    rbar = 0.99 * _g(lam, 605, 33, 60) \
+         + 0.14 * _g(lam, 430, 18, 22)
 
-    gbar = 0.32 * _g(lam, 542, 45, 40)
+    gbar = 0.91 * _g(lam, 542, 45, 40)
 
-    bbar = 0.32 * _g(lam, 450, 25, 45)
+    bbar = 0.91 * _g(lam, 450, 25, 45)
     
     rgb = np.zeros((3, len(lam)))
     rgb[0,:] = rbar
     rgb[1,:] = gbar
     rgb[2,:] = bbar
 
-    maxval = np.max(rgb)
     for i in range(0,len(intensity)):
-        rgb[:,i] *= intensity[i]/maxval
+        rgb[:,i] *= intensity[i]
     return rgb
 
 
@@ -92,10 +91,11 @@ def _lam2rgb_scientific(lam, intensity):
     rgb = np.linalg.solve(mat, xyz)
     
     # Make positive and scale
-    interval = np.max(rgb) - np.min(rgb)
+    # Magic values to make rgb values of all wavelengths fit
+    # in interval 0 to 1 (assuming intensity is 0 to 1)
     for i in range(0,len(intensity)):
-        rgb[:,i] *= intensity[i]/interval
-    rgb -= np.min(rgb)
+        rgb[:,i] *= intensity[i]/0.435842
+    rgb += 0.206704
 
     return rgb
 
